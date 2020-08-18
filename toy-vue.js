@@ -14,12 +14,12 @@ export class ToyVue {
   traversal(node) {
     if (node.nodeType === Node.TEXT_NODE) {
       if (node.textContent.trim().match(/^{{([\s\S]+)}}$/)) {
-        let name = RegExp.$1.trim();
+        const name = RegExp.$1.trim();
         effect(() => node.textContent = this.data[name]);
       }
     }
     if (node.nodeType === Node.ELEMENT_NODE) {
-      let attributes = node.attributes;
+      const attributes = node.attributes;
       for (const attribute of attributes) {
         if (attribute.name === 'v-model') {
           const name = attribute.value;
@@ -32,21 +32,21 @@ export class ToyVue {
           effect(() => node.setAttribute(attrname, this.data[value]));
         }
         if (attribute.name.match(/^v-on:([\s\S]+)$/)) {
-          let eventname = RegExp.$1;
-          let fnname = attribute.value;
+          const eventname = RegExp.$1;
+          const fnname = attribute.value;
           effect(() => node.addEventListener(eventname, this[fnname]));
         }
       }
     }
     if (node.childNodes && node.childNodes.length) {
-      for (let child of node.childNodes) {
+      for (const child of node.childNodes) {
         this.traversal(child);
       }
     }
   }
 }
 
-let effects = new Map();
+const effects = new Map();
 
 let currentEffect = null;
 
@@ -57,7 +57,7 @@ function effect(fn) {
 }
 
 function reactive(object) {
-  let observed = new Proxy(object , {
+  const observed = new Proxy(object , {
     get(object, property) {
       if (currentEffect) {
         if (!effects.has(object))
@@ -72,7 +72,7 @@ function reactive(object) {
     set(object, property, value) {
       object[property] = value;
       if (effects.has(object) && effects.get(object).has(property)) {
-        for (let effect of effects.get(object).get(property)) {
+        for (const effect of effects.get(object).get(property)) {
           effect();
         }
       }
